@@ -19,11 +19,11 @@ def compute_2d_prefix_sum(matrix):
     return prefix_sum
 
 
-def get_submatrix_sum(prefix_sum, l1, r1, l2, r2):
+def get_submatrix_sum(prefix_sum, i1, j1, i2, j2):
     # 指定された範囲の合計を計算
     return (
-        prefix_sum[r1][r2]
-        - prefix_sum[l1][r2]
-        - prefix_sum[r1][l2]
-        + prefix_sum[l1][l2]
+        prefix_sum[i2][j2]
+        - prefix_sum[i1][j2]
+        - prefix_sum[i2][j1]
+        + prefix_sum[i1][j1]
     )
