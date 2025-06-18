@@ -23,7 +23,7 @@ print(lcm(a, b))
 # 36
 ```
 
-### mod 逆元
+#### mod 逆元
 p: 素数のとき、
 ```python
 pow(a, -1, p)
@@ -145,6 +145,28 @@ for p in distinct_permutations([0, 0, 1]):
 # [1, 0, 0]
 ```
 
+### LIS
+https://qiita.com/python_walker/items/d1e2be789f6e7a0851e5
+abc393_f
+
+### 集合
+- 部分集合の判定
+```python
+a = {1, 2, 3}
+b = {1, 2}
+print(b <= a)
+# True
+```
+
+### 正規表現
+- fullmatch は完全一致
+```python
+import re
+
+s = "abc"
+print(bool(re.fullmatch("abc", s)))
+# True
+```
 
 ### 高速化
 1. ある整数が条件を満たすか（e.g. グラフのある頂点が探索済みか）を判定するとき、対象となる整数の範囲がそれほど大きくなければ、set よりlist[bool] の方が高速
