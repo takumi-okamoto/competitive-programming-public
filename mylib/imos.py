@@ -1,7 +1,3 @@
-from typing import Union
-import numpy as np
-
-
 class Imos:
     """class for Imos method
 
@@ -22,35 +18,33 @@ class Imos:
         >>> imos.get()
         [1, 1, 3, 2, 2, 5, 5, 3, 0, 4]
     """
+
     def __init__(self, data: list) -> None:
         """Inits Imos with data"""
         data = data.copy()
         data.append(0)
-        self.__difference = [data[i] - data[i-1] for i in range(len(data)-1)]
+        self.__difference = [data[i] - data[i - 1] for i in range(len(data) - 1)]
 
-    def add(self, l: int, r: int, x: Union[int, float]) -> None:
+    def add(self, l: int, r: int, x: int | float) -> None:
         """
         adds x to the interval [l, r).
         calculation is done in O(1) time.
         Args:
             l (int): left index of the interval
             r (int): right index of the interval
-            x (Union[int, float]): value to add
+            x (int|float): value to add
         """
         if l == r:
             return
         if r < l:
-            raise ValueError('r must be larger than l')
-        if not (0 <= l <= len(self.__difference)
-                and 0 <= r <= len(self.__difference)):
-            raise IndexError(
-                f'l and r must be in [0, {len(self.__difference)}]'
-            )
+            raise ValueError("r must be larger than l")
+        if not (0 <= l <= len(self.__difference) and 0 <= r <= len(self.__difference)):
+            raise IndexError(f"l and r must be in [0, {len(self.__difference)}]")
         self.__difference[l] += x
         if 0 <= r < len(self.__difference):
             self.__difference[r] -= x
 
-    def get(self) -> None:
+    def get(self) -> list[list[int | float]]:
         """
         Gets the value of each index.
 
@@ -94,16 +88,15 @@ class Imos2D:
          [0, 0, 0, 0, 0, 0, 0, 0, 0, 4],
          [0, 0, 0, 0, 0, 0, 0, 0, 0, 4]]
     """
-    def __init__(self, data: list[list[Union[int, float]]]) -> None:
-        """Inits Imos2D with data"""
-        self.__original_data = np.array(data)
-        self.__difference = np.zeros(self.__original_data.shape)
-        self.__H = self.__original_data.shape[0]
-        self.__W = self.__original_data.shape[1]
 
-    def add(
-        self, u: int, d: int, l: int, r: int, x: Union[int, float]
-    ) -> None:
+    def __init__(self, data):
+        """Inits Imos2D with data"""
+        self.__original_data = data
+        self.__H = len(data)
+        self.__W = len(data[0])
+        self.__difference = [[0] * self.__W for _ in range(self.__H)]
+
+    def add(self, u, d, l, r, x):
         """
         add x to the interval [u, d) x [l, r).
 
@@ -114,28 +107,30 @@ class Imos2D:
             r (int): right index of the interval
             x (Union[int, float]): value to add
         """
+
         if l == r or u == d:
             return
         if r < l:
-            raise ValueError('r must be larger than l')
+            raise ValueError("r must be larger than l")
         if d < u:
-            raise ValueError('d must be larger than u')
-        if not (0 <= u <= self.__H and 0 <= d <= self.__H
-                and 0 <= l <= self.__W and 0 <= r <= self.__W):
+            raise ValueError("d must be larger than u")
+        if not (
+            0 <= u <= self.__H and 0 <= d <= self.__H and 0 <= l <= self.__W and 0 <= r <= self.__W
+        ):
             raise IndexError(
-                f'u and d must be in [0, {self.__H} and \
-                    l and r must be in [0, {self.__W}].'
+                f"u and d must be in [0, {self.__H} and \
+                    l and r must be in [0, {self.__W}]."
             )
 
-        self.__difference[u, l] += x
+        self.__difference[u][l] += x
         if r < self.__W:
-            self.__difference[u, r] -= x
+            self.__difference[u][r] -= x
         if d < self.__H:
-            self.__difference[d, l] -= x
+            self.__difference[d][l] -= x
         if r < self.__W and d < self.__H:
-            self.__difference[d, r] += x
+            self.__difference[d][r] += x
 
-    def get(self) -> list[list[float]]:
+    def get(self):
         """
         Gets the value of each index.
 
@@ -144,7 +139,16 @@ class Imos2D:
         Returns:
             list: list of the value of each index
         """
-        data = np.cumsum(self.__difference, axis=0)
-        data = np.cumsum(data, axis=1)
-        data = self.__original_data + data
-        return data.tolist()
+        diff = [[0] * self.__W for _ in range(self.__H)]
+        for i in range(self.__H):
+            diff[i][0] = self.__difference[i][0]
+            for j in range(1, self.__W):
+                diff[i][j] = diff[i][j - 1] + self.__difference[i][j]
+        for i in range(1, self.__H):
+            for j in range(self.__W):
+                diff[i][j] += diff[i - 1][j]
+        data = [[0] * self.__W for _ in range(self.__H)]
+        for i in range(self.__H):
+            for j in range(self.__W):
+                data[i][j] = self.__original_data[i][j] + diff[i][j]
+        return data
